@@ -37,7 +37,7 @@ pico_sdk_init()
 
 add_executable(rp2350-canbus-dash "main.c" "xl2515.c" "nextion.c")
 
-pico_set_program_name(rp2350-canbus-dash "rp2350_can")
+pico_set_program_name(rp2350-canbus-dash "rp2350-canbus-dash")
 pico_set_program_version(rp2350-canbus-dash "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
@@ -45,9 +45,7 @@ pico_enable_stdio_uart(rp2350-canbus-dash 0)
 pico_enable_stdio_usb(rp2350-canbus-dash 1)
 
 # Add the standard library to the build
-target_link_libraries(rp2350-canbus-dash
-        pico_stdlib
-        hardware_spi)
+target_link_libraries(rp2350-canbus-dash pico_stdlib hardware_spi pico_multicore)
 
 # Add the standard include files to the build
 target_include_directories(rp2350-canbus-dash PRIVATE

@@ -9,5 +9,5 @@
 #define UART_TX_PIN 8
 #define UART_RX_PIN 8
 
-int nextion_init();
-int send_cmd(uint8_t cmd);
+void nextion_init();
+void send_cmd(uint8_t cmd);
