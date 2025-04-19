@@ -45,7 +45,7 @@ pico_enable_stdio_uart(rp2350-canbus-dash 0)
 pico_enable_stdio_usb(rp2350-canbus-dash 1)
 
 # Add the standard library to the build
-target_link_libraries(rp2350-canbus-dash pico_stdlib hardware_spi pico_multicore)
+target_link_libraries(rp2350-canbus-dash pico_stdlib hardware_spi pico_multicore pico_time)
 
 # Add the standard include files to the build
 target_include_directories(rp2350-canbus-dash PRIVATE
