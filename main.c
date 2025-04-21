@@ -47,6 +47,8 @@ int gear;
 int selected_map;
 float battery;
 
+uint8_t data_buffer[8];
+uint8_t recv_len = 0;
 
 //Nextion Serial interface will be on GP8 TX GP9 RX UART1
 
@@ -64,6 +66,12 @@ void nextion_drawloop(){
     }
 }
 
+bool is_id_of_interest(uint32_t id){
+    return (id == 0x00001000 ||
+            id == 0x00001001 ||
+            id == 0x00001002 ||
+            id == 0x00001003);
+}
 
 int main(){
     stdio_init_all();
@@ -81,7 +89,15 @@ int main(){
         currentms_core0 = to_ms_since_boot(get_absolute_time());
         if((currentms_core0 - msSinceBoot_core0) >= 5){
             //Run actual can data extraction method here
-
+            if(xl2515_recv(0x00001000, recv_data, &recv_len)){
+                printf("0x1000");
+            }else if(xl2515_recv(0x00001001, recv_data, &recv_len)){
+                printf("0x1001");
+            }else if(xl2515_recv(0x00001002, recv_data, &recv_len)){
+                printf("0x1002");
+            }else if(xl2515_recv(0x00001003, recv_data, &recv_len)){
+                printf("0x1003");
+            }
             //Terminate loop by resetting once executed.
             msSinceBoot_core0 = to_ms_since_boot(get_absolute_time());
         }
