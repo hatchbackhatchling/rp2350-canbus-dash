@@ -34,6 +34,22 @@ int send_cmd(uint8_t* cmd){
 
 //Functions built off from send_cmd
 
+int clear_screen(int color){
+    
+    //Creating strings from int to concatenate to command
+    char strcolor[5];
+
+    //Converting input parameters to strings
+    itoa(color, strcolor, 10);
+
+    //Creating single command to send to HMI.
+    char command[50]="cls ";
+
+    strcat(command, strcolor);
+
+    send_cmd(command); //Send finished command to HMI.
+}
+
 int draw_rect(int x, int y, int x2, int y2, int color){
     
     //Creating strings from int to concatenate to command
@@ -51,7 +67,7 @@ int draw_rect(int x, int y, int x2, int y2, int color){
     itoa(color, strcolor, 10);
 
     //Creating single command to send to HMI.
-    char command[30]="draw ";
+    char command[50]="draw ";
     char comma[1]=",";
     
     //Will figure out a more efficient method later, but for now this is how command is constructed.
@@ -65,5 +81,5 @@ int draw_rect(int x, int y, int x2, int y2, int color){
     strcat(command, comma);
     strcat(command, strcolor);
 
-    send_cmd(command);
+    send_cmd(command); //Send finished command to HMI.
 }

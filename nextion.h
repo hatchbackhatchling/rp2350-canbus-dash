@@ -18,5 +18,6 @@ void nextion_init();
 int send_cmd(uint8_t* cmd);
 
 //Functions built off of send_cmd
+int clear_screen(int color);
 int draw_rect(int x, int y, int x2, int y2, int color);
 

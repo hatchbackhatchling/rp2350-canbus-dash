@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(rp2350-canbus-dash "main.c" "xl2515.c" "nextion.c" "f1.h")
+add_executable(rp2350-canbus-dash "main.c" "xl2515.c" "nextion.c" "f1.c")
 
 pico_set_program_name(rp2350-canbus-dash "rp2350-canbus-dash")
 pico_set_program_version(rp2350-canbus-dash "0.1")

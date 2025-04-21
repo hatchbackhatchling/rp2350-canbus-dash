@@ -4,12 +4,18 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/time.h"
+
+#include "f1.h"
 #include "nextion.h"
 #include "xl2515.h" //CAN controller libraries
 
 //Variables
-uint32_t msSinceBoot;
-uint32_t currentms;
+uint32_t msSinceBoot_core0;
+uint32_t currentms_core0;
+
+uint32_t msSinceBoot_core1;
+uint32_t currentms_core1;
+
 const int updateInterval = 5;
 
 //0x1000
@@ -45,10 +51,16 @@ float battery;
 //Nextion Serial interface will be on GP8 TX GP9 RX UART1
 
 //Core 1 will handle nextion refreshing and data output.
-void core1_entry(){
+void nextion_drawloop(){
+    
+    //Start off by getting current time
+    msSinceBoot_core1 = to_ms_since_boot(get_absolute_time());
     while (true){
-        printf("Core 1 is running.");
-        sleep_ms(1000);
+        currentms_core1 = to_ms_since_boot(get_absolute_time());
+        if((currentms_core1 - msSinceBoot_core1) >= 5){
+            //draw background
+            drawbg();
+        }
     }
 }
 
@@ -58,20 +70,20 @@ int main(){
 
     //Starting Nextion Interface on UART1
     nextion_init();   
-    multicore_launch_core1(core1_entry);
+    multicore_launch_core1(nextion_drawloop);
 
     //Starting CAN controller with 1000KBPS BitRate
     xl2515_init(KBPS1000);
     
     //Start off by getting current time
-    msSinceBoot = to_ms_since_boot(get_absolute_time());
+    msSinceBoot_core0 = to_ms_since_boot(get_absolute_time());
     while(true){
-        currentms = to_ms_since_boot(get_absolute_time());
-        if((currentms - msSinceBoot) >= 5){
+        currentms_core0 = to_ms_since_boot(get_absolute_time());
+        if((currentms_core0 - msSinceBoot_core0) >= 5){
             //Run actual can data extraction method here
 
             //Terminate loop by resetting once executed.
-            msSinceBoot = to_ms_since_boot(get_absolute_time());
+            msSinceBoot_core0 = to_ms_since_boot(get_absolute_time());
         }
     }
 
