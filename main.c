@@ -1,5 +1,6 @@
 //Importing Dependencies
 #include <stdio.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/time.h"

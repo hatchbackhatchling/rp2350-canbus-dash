@@ -13,10 +13,15 @@ void nextion_init(){
 
 }
 
-int send_cmd(uint8_t cmd){
+int send_cmd(uint8_t* cmd){
     const uint8_t term = 0xFF; //Terminating Character
 
-    uart_write_blocking(UART_ID, &cmd, 1);
+    //Send the entire string until the null termninator
+    size_t len = 0;
+    while(cmd[len] != '\0'){
+        uart_write_blocking(UART_ID, &cmd[len], 1);
+        len++;
+    }
 
     int i = 0;
     while(i <= 2){
@@ -29,6 +34,36 @@ int send_cmd(uint8_t cmd){
 
 //Functions built off from send_cmd
 
-int draw_line(int x, int y, int x2, int y2, int color){
-    //Boilerplate code as of now.
+int draw_rect(int x, int y, int x2, int y2, int color){
+    
+    //Creating strings from int to concatenate to command
+    char strx[3];
+    char stry[3];
+    char strx2[3];
+    char stry2[3];
+    char strcolor[5];
+    
+    //Converting input parameters to strings
+    itoa(x, strx, 10);
+    itoa(y, stry, 10);
+    itoa(x2, strx2, 10);
+    itoa(y2, stry2, 10);
+    itoa(color, strcolor, 10);
+
+    //Creating single command to send to HMI.
+    char command[30]="draw ";
+    char comma[1]=",";
+    
+    //Will figure out a more efficient method later, but for now this is how command is constructed.
+    strcat(command, strx);
+    strcat(command, comma);
+    strcat(command, stry);
+    strcat(command, comma);
+    strcat(command, strx2);
+    strcat(command, comma);
+    strcat(command, stry2);
+    strcat(command, comma);
+    strcat(command, strcolor);
+
+    send_cmd(command);
 }

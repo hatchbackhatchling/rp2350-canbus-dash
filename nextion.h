@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
@@ -13,8 +15,8 @@
 #define WHITE 65535
 
 void nextion_init();
-int send_cmd(uint8_t cmd);
+int send_cmd(uint8_t* cmd);
 
 //Functions built off of send_cmd
-int draw_line(int x, int y, int x2, int y2, int color);
+int draw_rect(int x, int y, int x2, int y2, int color);
 
