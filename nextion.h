@@ -9,5 +9,12 @@
 #define UART_TX_PIN 8
 #define UART_RX_PIN 8
 
+#define BLACK 0
+#define WHITE 65535
+
 void nextion_init();
-void send_cmd(uint8_t cmd);
+int send_cmd(uint8_t cmd);
+
+//Functions built off of send_cmd
+int draw_line(int x, int y, int x2, int y2, int color);
+

@@ -43,7 +43,7 @@ float battery;
 
 //Nextion Serial interface will be on GP8 TX GP9 RX UART1
 
-//Core 1 will handle nextion data.
+//Core 1 will handle nextion refreshing and data output.
 void core1_entry(){
     while (true){
         printf("Core 1 is running.");

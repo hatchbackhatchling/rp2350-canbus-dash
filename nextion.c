@@ -13,7 +13,7 @@ void nextion_init(){
 
 }
 
-void send_cmd(uint8_t cmd){
+int send_cmd(uint8_t cmd){
     const uint8_t term = 0xFF; //Terminating Character
 
     uart_write_blocking(UART_ID, &cmd, 1);
@@ -24,4 +24,11 @@ void send_cmd(uint8_t cmd){
         i++;
     }
 
+    return 0;
+}
+
+//Functions built off from send_cmd
+
+int draw_line(int x, int y, int x2, int y2, int color){
+    //Boilerplate code as of now.
 }
