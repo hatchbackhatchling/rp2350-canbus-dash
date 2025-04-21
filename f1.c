@@ -3,24 +3,29 @@
 
 //Function to draw background
 int drawbg(){
-    
+
     /*
-    draw 0,0,800,480,WHITE
+        cls 0
+        draw 0,0,800,480,WHITE
+        draw 0,0,275,100,WHITE 
+        draw 275,0,525,100,WHITE
+        draw 525,0,800,100,WHITE
 
-    draw 0,0,275,100,WHITE 
-    draw 275,0,525,100,WHITE
-    draw 525,0,800,100,WHITE
+        draw 0,100,190,210,WHITE
+        draw 0,210,190,320,WHITE
+        draw 0,320,190,430,WHITE
+        draw 610,100,800,210,WHITE
+        draw 610,210,800,320,WHITE
+        draw 610,320,800,430,WHITE
+            
+        draw 190,100,290,210,WHITE   
+        draw 190,210,290,320,WHITE
+        draw 510,100,610,210,WHITE
+        draw 510,210,610,320,WHITE
 
-    draw 0,100,190,210,WHITE
-    draw 0,210,190,320,WHITE
-    draw 0,320,190,430,WHITE
-
-    draw 610,100,800,210,WHITE
-    draw 610,210,800,320,WHITE
-    draw 610,320,800,430,WHITE
-    
-    draw 190,100,290,210,WHITE   
-    draw 190,210,290,320,WHITE
+        draw 190,320,270,430,WHITE
+        draw 530,320,610,430,WHITE
+        draw 270,320,530,430,WHITE
     */
 
     clear_screen(BLACK);
@@ -46,5 +51,18 @@ int drawbg(){
 
     draw_rect(190,320,270,430,WHITE); //FUEL MIX Border.
     draw_rect(530,320,610,430,WHITE); //ERS Border
+
+    draw_rect(270,320,530,430,WHITE); //Current Time Border
+
+    //Will add throttle and brake bars later.
+
+    /* Alternate layout would be to have 
+        tacho -> blank -> speedo
+        oilT -> fl -> gear -> fr -> clT
+        oilP -> rl -> gear -> rr -> iaT
+        AFR -> N/A -> N/A -> N/A -> Fuel
+        TPS Bar    
+    */
+
     return 0;
 }
