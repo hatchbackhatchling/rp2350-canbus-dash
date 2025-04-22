@@ -89,13 +89,13 @@ int main(){
         currentms_core0 = to_ms_since_boot(get_absolute_time());
         if((currentms_core0 - msSinceBoot_core0) >= 5){
             //Run actual can data extraction method here
-            if(xl2515_recv(0x00001000, recv_data, &recv_len)){
+            if(xl2515_recv(0x00001000, data_buffer, &recv_len)){
                 printf("0x1000");
-            }else if(xl2515_recv(0x00001001, recv_data, &recv_len)){
+            }else if(xl2515_recv(0x00001001, data_buffer, &recv_len)){
                 printf("0x1001");
-            }else if(xl2515_recv(0x00001002, recv_data, &recv_len)){
+            }else if(xl2515_recv(0x00001002, data_buffer, &recv_len)){
                 printf("0x1002");
-            }else if(xl2515_recv(0x00001003, recv_data, &recv_len)){
+            }else if(xl2515_recv(0x00001003, data_buffer, &recv_len)){
                 printf("0x1003");
             }
             //Terminate loop by resetting once executed.
