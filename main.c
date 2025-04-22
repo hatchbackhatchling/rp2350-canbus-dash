@@ -60,24 +60,19 @@ void nextion_drawloop(){
     while (true){
         currentms_core1 = to_ms_since_boot(get_absolute_time());
         if((currentms_core1 - msSinceBoot_core1) >= 5){
-            //draw background
-            drawbg();
+            //No need to redraw background now
+            updateTacho(rpm); //Update Tachometer
         }
     }
-}
-
-bool is_id_of_interest(uint32_t id){
-    return (id == 0x00001000 ||
-            id == 0x00001001 ||
-            id == 0x00001002 ||
-            id == 0x00001003);
 }
 
 int main(){
     stdio_init_all();
 
-    //Starting Nextion Interface on UART1
+    //Starting Nextion Interface on UART1 and draw background.
     nextion_init();   
+    drawbg();
+
     multicore_launch_core1(nextion_drawloop);
 
     //Starting CAN controller with 1000KBPS BitRate

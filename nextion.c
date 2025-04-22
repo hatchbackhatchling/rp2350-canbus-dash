@@ -83,3 +83,57 @@ int draw_rect(int x, int y, int x2, int y2, int color){
 
     send_cmd(command); //Send finished command to HMI.
 }
+
+int text_box(int x, int y, int w, int h, int font, int pco, int bco, int xcen, int ycen, int sta, char* text){
+    
+    //Creating strings from int to concatenaate to the command
+    char strx[3];
+    char stry[3];
+    char strw[3];
+    char strh[3];
+    char strfont[1];
+    char strpco[5];
+    char strbco[5];
+    char strxcen[1];
+    char strycen[1];
+    char strsta[1];
+    
+    //Creating single command to send to HMI.
+    char command[50]="xstr ";
+    char comma[1]=",";
+
+    strcat(command, strx);
+    strcat(command, comma);
+
+    strcat(command, stry);
+    strcat(command, comma);
+
+    strcat(command, strw);
+    strcat(command, comma);
+
+    strcat(command, strh);
+    strcat(command, comma);
+
+    strcat(command, strfont);
+    strcat(command, comma);
+
+    strcat(command, strpco);
+    strcat(command, comma);
+
+    strcat(command, strbco);
+    strcat(command, comma);
+
+    strcat(command, strxcen);
+    strcat(command, comma);
+
+    strcat(command, strycen);
+    strcat(command, comma);
+
+    strcat(command, strsta);
+    strcat(command, comma);
+    
+    strcat(command, text);
+    
+    send_cmd(command); //Send finished command to HMI.
+    return 0;
+}
