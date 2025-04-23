@@ -11,6 +11,16 @@ int updateTacho(int rpm){
     return 0;
 }
 
+int updateSpeedo(int spd){
+    char spdbuf[3]; //Create speed buffer
+    itoa(spd, spdbuf, 10);
+
+    draw_rect(525,0,800,100,WHITE); //Draw the speedo border.
+    text_box(527,2,200,30,PX16,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"Speedometer (km/h)"); //Speedometer Text
+    text_box(560,25,150,50,1,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,spdbuf); //Draw the actual speedometer
+    return 0;
+}
+
 //Function to draw background
 int drawbg(){
 
@@ -44,7 +54,7 @@ int drawbg(){
 
     updateTacho(0);
     draw_rect(275,0,525,100,WHITE); //Draw the BLANK border.
-    draw_rect(525,0,800,100,WHITE); //Draw the speedo border.
+    updateSpeedo(0);
 
     draw_rect(0,100,190,210,WHITE); //Draw the oilT border.
     draw_rect(0,210,190, 320,WHITE); //Draw the oilP border.
@@ -67,7 +77,7 @@ int drawbg(){
     //Add TPS Bar Later
 
     
-    text_box(527,2,200,30,PX16,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"Speedometer (km/h)"); //Speedometer Text
+    
 
     return 0;
 }
