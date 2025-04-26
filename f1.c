@@ -24,6 +24,13 @@ int updateSpeedo(int spd){
     return 0;
 }
 
+int updateOilTemp(int oilT){
+    char tbuf[3]; //Create Buffer
+    itoa(oilT, tbuf, 10);
+    draw_rect(0,100,190,210,WHITE); //Draw the oilT border.
+
+}
+
 //Function to draw background
 int drawbg(){
 
@@ -59,7 +66,7 @@ int drawbg(){
     draw_rect(275,0,525,100,WHITE); //Draw the BLANK border.
     updateSpeedo(0);
 
-    draw_rect(0,100,190,210,WHITE); //Draw the oilT border.
+    updateOilTemp(0);
     draw_rect(0,210,190, 320,WHITE); //Draw the oilP border.
     draw_rect(0,320,190,430,WHITE); //Draw the AFR border.
 

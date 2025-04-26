@@ -20,3 +20,4 @@ int drawbg();
 //Component-based drawing
 int updateTacho(int rpm);
 int updateSpeedo(int spd);
+int updateOilTemp(int oilT);
