@@ -6,7 +6,9 @@ int updateTacho(int rpm){
     itoa(rpm, rpmbuf, 10);
 
     draw_rect(0,0,275,100,WHITE); //Draw the tachometer border.
+    
     text_box(2,2,90,30,PX24,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"RPM"); //Tachometer Text
+    fill(40,25,150,50,BLACK); //Fill before refresh
     text_box(40,25,150,50,PX48,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,rpmbuf); //Draw the actual tachometer
     return 0;
 }
@@ -17,6 +19,7 @@ int updateSpeedo(int spd){
 
     draw_rect(525,0,800,100,WHITE); //Draw the speedo border.
     text_box(527,2,200,30,PX16,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"Speedometer (km/h)"); //Speedometer Text
+    fill(560,25,150,50,BLACK); //Fill before refresh
     text_box(560,25,150,50,1,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,spdbuf); //Draw the actual speedometer
     return 0;
 }

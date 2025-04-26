@@ -84,6 +84,40 @@ int draw_rect(int x, int y, int x2, int y2, int color){
     send_cmd(command); //Send finished command to HMI.
 }
 
+int fill(int x, int y, int w, int h, int color){
+    //Creating strings from int to concatenate to command
+    char strx[3];
+    char stry[3];
+    char strw[3];
+    char strh[3];
+    char strcolor[5];
+    
+    //Converting input parameters to strings
+    itoa(x, strx, 10);
+    itoa(y, stry, 10);
+    itoa(w, strw, 10);
+    itoa(h, strh, 10);
+    itoa(color, strcolor, 10);
+
+    //Creating single command to send to HMI.
+    char command[50]="fill ";
+    char comma[1]=",";
+    
+    //Will figure out a more efficient method later, but for now this is how command is constructed.
+    strcat(command, strx);
+    strcat(command, comma);
+    strcat(command, stry);
+    strcat(command, comma);
+    strcat(command, strw);
+    strcat(command, comma);
+    strcat(command, strh);
+    strcat(command, comma);
+    strcat(command, strcolor);
+
+    send_cmd(command); //Send finished command to HMI.
+    return 0;
+}
+
 int text_box(int x, int y, int w, int h, int font, int pco, int bco, int xcen, int ycen, int sta, char* text){
     
     //Creating strings from int to concatenaate to the command

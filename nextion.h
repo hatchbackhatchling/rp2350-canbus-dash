@@ -8,8 +8,8 @@
 
 #define UART_ID uart1
 #define BAUD_RATE 115200
-#define UART_TX_PIN 8
-#define UART_RX_PIN 9
+#define UART_TX_PIN 1
+#define UART_RX_PIN 0
 
 //Color Definitions
 #define BLACK 0
