@@ -20,7 +20,7 @@ int updateSpeedo(int spd){
     draw_rect(525,0,800,100,WHITE); //Draw the speedo border.
     text_box(527,2,200,30,PX16,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"Speedometer (km/h)"); //Speedometer Text
     fill(560,25,150,50,BLACK); //Fill before refresh
-    text_box(560,25,150,50,1,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,spdbuf); //Draw the actual speedometer
+    text_box(560,25,150,50,PX64,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,spdbuf); //Draw the actual speedometer
     return 0;
 }
 
@@ -28,7 +28,33 @@ int updateOilTemp(int oilT){
     char tbuf[3]; //Create Buffer
     itoa(oilT, tbuf, 10);
     draw_rect(0,100,190,210,WHITE); //Draw the oilT border.
+    text_box(2,102,190,210,PX24,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"OIL TEMP °C"); //Oil Temp Text
+    fill(30,135,150,50,BLACK); //Fill before refresh
+    text_box(30,135,150,50,PX56,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,tbuf);
+}
 
+int updateOilPressure(int oilP){
+    char pbuf[3]; //Create Buffer
+    itoa(oilP, pbuf, 10);
+    draw_rect(0,210,190, 320,WHITE); //Draw the oilP border.
+    text_box(2,212,190,210,PX24,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"OIL PRESS. (Bar)"); //Oil Pressure Text
+    fill(30,245,150,50,BLACK); //Fill before refresh
+    text_box(30,245,150,50,PX56,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,pbuf);
+}
+
+int updateAFR(float afr){
+    char buf[4]; //Create buffer
+    sprintf(buf, "%g", afr);
+    draw_rect(0,320,190,430,WHITE); //Draw the AFR border.
+    text_box(2,212,190,210,PX24,WHITE,BLACK,HORIZONTAL_LEFT,VERTICAL_TOP,STA_NONE,"Air-Fuel Ratio"); //Oil Pressure Text
+    fill(30,245,150,50,BLACK); //Fill before refresh
+    text_box(30,245,150,50,PX56,WHITE,BLACK,HORIZONTAL_RIGHT,VERTICAL_CENTER,STA_NONE,buf);    
+}
+
+int updateTPS(int tps){
+    draw_rect(0,430,800,480,WHITE);
+    fill(0,432,800,478,BLACK);
+    fill(0,432,tps*8,48,GREEN);
 }
 
 //Function to draw background
@@ -67,8 +93,8 @@ int drawbg(){
     updateSpeedo(0);
 
     updateOilTemp(0);
-    draw_rect(0,210,190, 320,WHITE); //Draw the oilP border.
-    draw_rect(0,320,190,430,WHITE); //Draw the AFR border.
+    updateOilPressure(0);
+    updateAFR(0.0f);
 
     draw_rect(610,100,800,210,WHITE); //Draw the CLT border.
     draw_rect(610,210,800,320,WHITE); //Draw the IAT border.
@@ -84,10 +110,7 @@ int drawbg(){
 
     draw_rect(270,320,530,430,WHITE); //N/A Border
 
-    //Add TPS Bar Later
-
-    
-    
+    updateTPS(0);
 
     return 0;
 }
