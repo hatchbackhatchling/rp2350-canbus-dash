@@ -233,7 +233,7 @@ int main(){
 
     //Starting Nextion Interface on UART1 and draw background.
     nextion_init();   
-    drawbg();
+    //drawbg();
 
     multicore_launch_core1(nextion_drawloop);
 

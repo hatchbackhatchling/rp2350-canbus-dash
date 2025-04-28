@@ -45,5 +45,6 @@ int clear_screen(int color);
 int fill(int x, int y, int w, int h, int color);
 int draw_line(int x, int y, int x2, int y2, int color);
 int draw_rect(int x, int y, int x2, int y2, int color);
+int page(int pagenum);
+int set_value(char* object, int value);
 int text_box(int x, int y, int w, int h, int font, int pco, int bco, int xcen, int ycen, int sta, char* text); //Fonts should be defined in hud class.
-

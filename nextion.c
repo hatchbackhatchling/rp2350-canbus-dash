@@ -11,6 +11,7 @@ void nextion_init(){
     gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
     bi_decl(bi_1pin_with_func(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN)));
 
+    page(0);
 }
 
 int send_cmd(uint8_t* cmd){
@@ -114,6 +115,23 @@ int fill(int x, int y, int w, int h, int color){
     strcat(command, comma);
     strcat(command, strcolor);
 
+    send_cmd(command); //Send finished command to HMI.
+    return 0;
+}
+
+int page(int pagenum){
+    char numbuf[2];
+    char command[7] = "page ";
+    strcat(command, itoa(pagenum, numbuf, 10));
+    send_cmd(command);
+    return 0;
+}
+
+int setValue(char* object, int value){
+    char valuebuf[4];
+
+    char command[50]=strcat(object,".val=");
+    strcat(command, itoa(value, valuebuf, 10));
     send_cmd(command); //Send finished command to HMI.
     return 0;
 }
