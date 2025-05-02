@@ -2,31 +2,31 @@
 #include "nextion.h"
 
 int updateTacho(int rpm){
-    setValue("tachometer", rpm);
+    set_value("tachometer", rpm);
     return 0;
 }
 
 int updateSpeedo(int spd){
-    setValue("speedo", spd);
+    set_value("speedo", spd);
     return 0;
 }
 
 int updateOilTemp(int oilT){
-    setValue("oilt", oilT);
+    set_value("oilt", oilT);
     return 0;
 }
 
 int updateOilPressure(int oilP){
-    setValue("oilp", oilP);
+    set_value("oilp", oilP);
 }
 
 int updateAFR(float afr){
-    setValue("afr", afr);
+    set_value("afr", afr);
     return 0;
 }
 
 int updateTPS(int tps){
-    setValue("tps", tps);
+    set_value("tps", tps);
     return 0;
 }
 
@@ -52,4 +52,4 @@ int updateTPS(int tps){
     updateTPS(0);
 
     return 0;
-}*/
+}*/         
