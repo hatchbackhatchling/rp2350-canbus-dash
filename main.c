@@ -264,7 +264,7 @@ int main(){
             */
 
             if(counter >= 19){
-                //printf("KEEPALIVE\n");
+                printf("KEEPALIVE\n");
                 led_state = !led_state;
                 gpio_put(LED_PIN, led_state);
                 counter = 0;
