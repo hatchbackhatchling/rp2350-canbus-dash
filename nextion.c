@@ -127,10 +127,12 @@ int page(int pagenum){
     return 0;
 }
 
-int setValue(char* object, int value){
+int set_value(char* object, int value){
     char valuebuf[4];
 
-    char command[50]=strcat(object,".val=");
+    char command[50];
+    strcpy(command, object);
+    strcat(command, ".val=");
     strcat(command, itoa(value, valuebuf, 10));
     send_cmd(command); //Send finished command to HMI.
     return 0;

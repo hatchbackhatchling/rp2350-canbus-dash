@@ -226,6 +226,7 @@ int process_0x18FEF433(uint8_t* data, uint8_t len, bool debug){
 
 int main(){
     stdio_init_all();
+    printf("Serial Initialized");
 
     //Start spin locks
     ecu_lock = spin_lock_init(0);
