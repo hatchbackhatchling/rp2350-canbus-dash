@@ -201,3 +201,39 @@ bool xl2515_recv(uint32_t can_id, uint8_t *data, uint8_t *len)
     xl2515_write_reg_byte(RXB0SIDL, 0x60);
     return true;
 }
+
+bool xl2515_recv_any(uint32_t *can_id, uint8_t *data, uint8_t *len)
+{
+    if (g_xl2515_recv_flag == false)
+    {
+        return false;
+    }
+    g_xl2515_recv_flag = false;
+
+    while (1)
+    {
+        if (xl2515_read_reg_byte(CANINTF) & 0x01)
+        {
+            // Read the received ID
+            uint8_t sidh = xl2515_read_reg_byte(RXB0SIDH);
+            uint8_t sidl = xl2515_read_reg_byte(RXB0SIDL);
+            *can_id = ((uint32_t)sidh << 3) | ((sidl >> 5) & 0x07);
+            
+            // Read the data length
+            *len = xl2515_read_reg_byte(RXB0DLC) & 0x0F; // Get only the DLC bits
+            
+            // Read the data
+            for (uint8_t i = 0; i < *len; i++)
+            {
+                data[i] = xl2515_read_reg_byte(RXB0D0 + i);
+            }
+            break;
+        }
+    }
+
+    xl2515_write_reg_byte(CANINTF, 0);     // Clear interrupt flags
+    xl2515_write_reg_byte(CANINTE, 0x01);  // Enable interrupts again
+    
+    // No need to set specific filters as we want to receive any ID
+    return true;
+}

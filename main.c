@@ -5,24 +5,18 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/time.h"
-#include "hardware/sync.h" //for SpinLocks
 
 #include "f1.h"
 #include "nextion.h"
 #include "xl2515.h" //CAN controller libraries
 
+#define LED_PIN   25
+
 //Variables
-bool debug = false;
-uint32_t msSinceBoot_core0;
-uint32_t currentms_core0;
-
-uint32_t msSinceBoot_core1;
-uint32_t currentms_core1;
-
-const int updateInterval = 5;
-
-//SpinLock Declarations
-spin_lock_t *ecu_lock, *tpms_lock;
+bool debug = true;
+uint32_t msSinceBoot;
+uint32_t currentMS;
+int counter = 0;
 
 //ECU CANBUS
 
@@ -61,49 +55,10 @@ uint16_t tp[4] = {0,0,0,0}; //Initialize tire pressure as 0 to avoid null values
 uint8_t data_buffer[8];
 uint8_t recv_len = 0;
 
-//Nextion Serial interface will be on GP8 TX GP9 RX UART1
-
-//Core 1 will handle nextion refreshing and data output.
-void nextion_drawloop(){
-    int local_rpm;
-    float local_spd;
-    
-    //Start off by getting current time
-    msSinceBoot_core1 = to_ms_since_boot(get_absolute_time());
-    while (true){
-        currentms_core1 = to_ms_since_boot(get_absolute_time());
-        if((currentms_core1 - msSinceBoot_core1) >= 5){
-
-            //Safe acquisition of ECU data using spinlocks
-            uint32_t save = spin_lock_blocking(ecu_lock);
-
-            local_rpm = rpm;
-            local_spd = spd;
-
-            //Release the spin_lock immediately after copying
-            spin_unlock(ecu_lock, save);
-
-            //No need to redraw background now
-            updateTacho(rpm); //Update Tachometer
-            updateSpeedo((int) spd); //Update Speedometer
-        }
-    }
-}
-
 //ECU CANBus Data Processing Function
 
 int process_0x00001000(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1000:"); //Print Frame ID
-    
-    if(debug){
-        for(int i=0;i<len; i++){
-            printf("%02x ", data[i]);
-        }
-        printf("\r\n");
-    }
-
-    //Safely update the shared ECU data
-    uint32_t save = spin_lock_blocking(ecu_lock);
 
     //Extract and convert data according to protocol
     rpm = (data[0] << 8) | data[1];
@@ -112,24 +67,27 @@ int process_0x00001000(uint8_t* data, uint8_t len, bool debug){
     tps = data[6];
     cot = data[7] * 0.0488f;
 
-    //Release spinlock
-    spin_unlock(ecu_lock, save);
+    if(debug){
+        for(int i=0;i<len; i++){
+            printf("%02x ", data[i]);
+        }
+        printf("\r\n");
+
+        // Print each extracted value
+        printf("RPM: %u\r\n", rpm);
+        printf("MAP: %.1f kPa\r\n", map);
+        printf("BARO: %u mbar\r\n", baro);
+        printf("TPS: %u%%\r\n", tps);
+        printf("COT: %.2f C\r\n", cot);
+    }
+
+    
 
     return 0;
 }
 
 int process_0x00001001(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1001:"); //Print Frame ID
-    
-    if(debug){
-        for(int i=0;i<len; i++){
-            printf("%02x ", data[i]);
-        }
-        printf("\r\n");
-    }
-
-    //Safely update the shared ECU data
-    uint32_t save = spin_lock_blocking(ecu_lock);
 
     //Extract and convert data according to protocol
     egt = (data[0] << 8) | data[1];
@@ -137,8 +95,16 @@ int process_0x00001001(uint8_t* data, uint8_t len, bool debug){
     afr1 = ((data[4] << 8) | data[5]) / 10.0f;
     afr2 = ((data[6] << 8) | data[7]) / 10.0f;
 
-    //Release spinlock
-    spin_unlock(ecu_lock, save);
+    if(debug){
+        for(int i=0;i<len; i++){
+            printf("%02x ", data[i]);
+        }
+        printf("\r\n");
+        printf("EGT: %u C\r\n", egt);
+        printf("Speed: %.2f km/h\r\n", spd);
+        printf("AFR1: %.1f\r\n", afr1);
+        printf("AFR2: %.1f\r\n", afr2);
+    }
 
     return 0;
 }
@@ -146,24 +112,23 @@ int process_0x00001001(uint8_t* data, uint8_t len, bool debug){
 int process_0x00001002(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1002:"); //Print Frame ID
     
-    if(debug){
-        for(int i=0;i<len; i++){
-            printf("%02x ", data[i]);
-        }
-        printf("\r\n");
-    }
-
-    //Safely update the shared ECU data
-    uint32_t save = spin_lock_blocking(ecu_lock);
-
     //Extract and convert data according to protocol
     status_flags = (data[0] << 8) | data[1];
     error_flags = ((data[2] << 8) | data[3]);
     pibot = ((data[4] << 8) | data[5]) * 1.526e-3f;
     sibot = ((data[6] << 8) | data[7]) * 1.526e-3f;
 
-    //Release spinlock
-    spin_unlock(ecu_lock, save);
+    if(debug){
+        for(int i=0;i<len; i++){
+            printf("%02x ", data[i]);
+        }
+        printf("\r\n");
+        // Print each extracted value
+        printf("Status flags: 0x%04x\r\n", status_flags);
+        printf("Error flags: 0x%04x\r\n", error_flags);
+        printf("PIBOT: %.3f V\r\n", pibot);
+        printf("SIBOT: %.3f V\r\n", sibot);
+    }
 
     return 0;
 }
@@ -171,15 +136,6 @@ int process_0x00001002(uint8_t* data, uint8_t len, bool debug){
 int process_0x00001003(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1003:"); //Print Frame ID
     
-    if(debug){
-        for(int i=0;i<len; i++){
-            printf("%02x ", data[i]);
-        }
-        printf("\r\n");
-    }
-
-    //Safely update the shared ECU data
-    uint32_t save = spin_lock_blocking(ecu_lock);
 
     //Extract and convert data according to protocol
     iat = data[0] - 40;
@@ -190,9 +146,22 @@ int process_0x00001003(uint8_t* data, uint8_t len, bool debug){
     gear = data[5];
     selected_map = data[6];
     battery = data[7] / 11.0f;
-
-    //Release spinlock
-    spin_unlock(ecu_lock, save);
+    
+    if(debug){
+        for(int i=0;i<len; i++){
+            printf("%02x ", data[i]);
+        }
+        printf("\r\n");
+        // Print each extracted value
+        printf("IAT: %d C\r\n", iat);
+        printf("CLT: %d C\r\n", clt);
+        printf("AUXT: %d C\r\n", auxt);
+        printf("Ignition advance: %.1f deg\r\n", ign_adv);
+        printf("Injection duration: %u ms\r\n", inj_dur);
+        printf("Gear: %u\r\n", gear);
+        printf("Selected map: %u\r\n", selected_map);
+        printf("Battery: %.1f V\r\n", battery);
+    }
 
     return 0;
 }
@@ -207,9 +176,6 @@ int process_0x18FEF433(uint8_t* data, uint8_t len, bool debug){
         }
         printf("\r\n");
     }
-
-    //Safely update the shared ECU data
-    uint32_t save = spin_lock_blocking(tpms_lock);
     
     //Extracting the frame index (compound offset) from byte 7
     uint8_t frame_index = data[7] & 0x0F;
@@ -218,58 +184,95 @@ int process_0x18FEF433(uint8_t* data, uint8_t len, bool debug){
         tp[frame_index] = (data[1] << 8) | data[2];
     }
 
-    //Release spinlock
-    spin_unlock(tpms_lock, save);
 
     return 0;
 }
 
 int main(){
-    stdio_init_all();
-    printf("Serial Initialized");
+    bool led_state = false;
+    stdio_init_all(); 
+    printf("SERIAL INIT\n");
 
-    //Start spin locks
-    ecu_lock = spin_lock_init(0);
-    tpms_lock = spin_lock_init(1);
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_put(LED_PIN, led_state);
 
-    //Starting Nextion Interface on UART1 and draw background.
-    nextion_init();   
-    //drawbg();
+    xl2515_init(KBPS500);
+    printf("CANBUS INIT\n");
 
-    multicore_launch_core1(nextion_drawloop);
+    nextion_init();
+    printf("NEXTION INIT \n");
 
-    //Starting CAN controller with 1000KBPS BitRate
-    xl2515_init(KBPS1000);
+    uint32_t received_id;
+    uint8_t data_buffer[8];  // Assuming maximum CAN data length of 8 bytes
+    uint8_t recv_len;
     
-    //Start off by getting current time
-    msSinceBoot_core0 = to_ms_since_boot(get_absolute_time());
-    while(true){
-        currentms_core0 = to_ms_since_boot(get_absolute_time());
-        if((currentms_core0 - msSinceBoot_core0) >= 5){
+    msSinceBoot = to_ms_since_boot(get_absolute_time());
+    
+    while (true) {
+        currentMS = to_ms_since_boot(get_absolute_time());
+        
+        if(currentMS - msSinceBoot >= 50){
 
-            //Extract CAN Data from ECU
-            if(xl2515_recv(0x00001000, data_buffer, &recv_len)){
+            if (xl2515_recv_any(&received_id, data_buffer, &recv_len)) {
+                printf("Received frame ID: 0x%04lX\r\n", received_id);
+                
+                // Process based on the received frame ID
+                switch (received_id) {
+                    case 0x1000:
+                        process_0x00001000(data_buffer, recv_len, debug);
+                        break;
+                    case 0x1001:
+                        process_0x00001001(data_buffer, recv_len, debug);
+                        break;
+                    case 0x1002:
+                        process_0x00001002(data_buffer, recv_len, debug);
+                        break;
+                    case 0x1003:
+                        process_0x00001003(data_buffer, recv_len, debug);
+                        break;
+                    default:
+                        // For unknown frame IDs, print the raw data
+                        printf("Unknown frame 0x%04lX: ", received_id);
+                        for (int i = 0; i < recv_len; i++) {
+                            printf("%02x ", data_buffer[i]);
+                        }
+                        printf("\r\n");
+                        break;
+                }
+            }
+
+            /*//Extract CAN Data from ECU
+            if(xl2515_recv(0x1000, data_buffer, &recv_len)){
                 process_0x00001000(data_buffer, recv_len, debug);
             }
-            if(xl2515_recv(0x00001001, data_buffer, &recv_len)){
+            if(xl2515_recv(0x1001, data_buffer, &recv_len)){
                 process_0x00001001(data_buffer, recv_len, debug);
             }
-            if(xl2515_recv(0x00001002, data_buffer, &recv_len)){
+            if(xl2515_recv(0x1002, data_buffer, &recv_len)){
                 process_0x00001002(data_buffer, recv_len, debug);
             }
-            if(xl2515_recv(0x00001003, data_buffer, &recv_len)){
+            if(xl2515_recv(0x1003, data_buffer, &recv_len)){
                 process_0x00001003(data_buffer, recv_len, debug);
-            }
+            }*/
 
-            //Extract CAN Data from ECUMaster TPMS
-            if(xl2515_recv(0x18FEF433,data_buffer,&recv_len)){
-                process_0x18FEF433(data_buffer, recv_len, debug);
-            }
+            /*
+                //Extract CAN Data from ECUMaster TPMS
+                if(xl2515_recv(0x18FEF433,data_buffer,&recv_len)){
+                    process_0x18FEF433(data_buffer, recv_len, debug);
+                }
+            */
 
-            //Terminate loop by resetting once executed.
-            msSinceBoot_core0 = to_ms_since_boot(get_absolute_time());
+            if(counter >= 19){
+                //printf("KEEPALIVE\n");
+                led_state = !led_state;
+                gpio_put(LED_PIN, led_state);
+                counter = 0;
+            }
+            msSinceBoot = to_ms_since_boot(get_absolute_time());
+            counter ++;
         }
+
     }
 
-    return 0;
 }

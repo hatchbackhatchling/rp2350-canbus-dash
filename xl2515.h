@@ -412,6 +412,7 @@ void xl2515_reset(void);
 void xl2515_init(xl2515_rate_kbps_t rate_kbps);
 void xl2515_send(uint32_t can_id, uint8_t *data, uint8_t len);
 bool xl2515_recv(uint32_t can_id, uint8_t *data, uint8_t *len);
+bool xl2515_recv_any(uint32_t *can_id, uint8_t *data, uint8_t *len);
 
 #ifdef __cplusplus
 }
