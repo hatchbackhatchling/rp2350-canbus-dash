@@ -2,9 +2,9 @@
 
 This program uses a Waveshare-sourced RP2350-CAN and a Nextion HMI to display canbus statistics in an easily readable format.
 
-The CANBUS session is setup with CAN2.0b at 1000KBPS and extended id.
+The CANBUS session is setup with CAN2.0b at 1000KBPS and extended id. (Unfortunately am constrained to 500kbps until I change the ECU settings and retest.)
 
-The aim is to eventually make the program use multicore for as little latency as possible, and add speedometer and TPMS functionality among others.
+The aim is to eventually make the program use multicore for as little latency as possible, and add speedometer and TPMS functionality among others. (Note: I could not get multicore to work just yet)
 
 Core 0 (Main Core) will handle CANbus message receiving and decoding, while Core 1 will handle Nextion updating.
 Potential features that might be added down the line may also include Neopixels for Shift Light.
