@@ -1,7 +1,6 @@
 #include "nextion.h"
 
-void nextion_init(){
-    stdio_init_all();
+int nextion_init(){
     uart_init(UART_ID, BAUD_RATE);
     uart_set_translate_crlf(UART_ID, false);
 
@@ -11,7 +10,21 @@ void nextion_init(){
     gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
     bi_decl(bi_1pin_with_func(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN)));
 
+    if(uart_is_enabled(UART_ID)){
+        printf("UART 1 AVAIL\n");
+    }else{
+        printf("UART 1 FAIL, RETRY\n");
+        uart_init(UART_ID, BAUD_RATE);
+        if(uart_is_enabled(UART_ID)){
+            printf("UART 1 AVAIL\n");
+        }else{
+            printf("UART 1 FAIL\n");
+            return -1;
+        }
+    }
+
     page(0);
+    return 0;
 }
 
 int send_cmd(uint8_t* cmd){

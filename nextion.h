@@ -37,7 +37,7 @@
 #define STA_IMAGE 2
 #define STA_NONE 3
 
-void nextion_init();
+int nextion_init();
 int send_cmd(uint8_t* cmd);
 
 //Functions built off of send_cmd

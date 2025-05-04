@@ -57,7 +57,7 @@ uint8_t recv_len = 0;
 
 //ECU CANBus Data Processing Function
 
-int process_0x00001000(uint8_t* data, uint8_t len, bool debug){
+int process_0x1000(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1000:"); //Print Frame ID
 
     //Extract and convert data according to protocol
@@ -80,13 +80,16 @@ int process_0x00001000(uint8_t* data, uint8_t len, bool debug){
         printf("TPS: %u%%\r\n", tps);
         printf("COT: %.2f C\r\n", cot);
     }
-
-    
-
     return 0;
 }
 
-int process_0x00001001(uint8_t* data, uint8_t len, bool debug){
+int update_0x1000(){
+    updateTacho(rpm);
+    updateTPS(tps);
+    return 0;
+}
+
+int process_0x1001(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1001:"); //Print Frame ID
 
     //Extract and convert data according to protocol
@@ -109,7 +112,13 @@ int process_0x00001001(uint8_t* data, uint8_t len, bool debug){
     return 0;
 }
 
-int process_0x00001002(uint8_t* data, uint8_t len, bool debug){
+int update_0x1001(){
+    updateSpeedo(spd);
+    updateAFR(afr2);
+    return 0;
+}
+
+int process_0x1002(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1002:"); //Print Frame ID
     
     //Extract and convert data according to protocol
@@ -133,7 +142,7 @@ int process_0x00001002(uint8_t* data, uint8_t len, bool debug){
     return 0;
 }
 
-int process_0x00001003(uint8_t* data, uint8_t len, bool debug){
+int process_0x1003(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0x1003:"); //Print Frame ID
     
 
@@ -166,6 +175,12 @@ int process_0x00001003(uint8_t* data, uint8_t len, bool debug){
     return 0;
 }
 
+int update_0x1003(){
+    updateIAT(iat);
+    updateCLT(clt);
+    return 0;
+}
+
 //TPMS Data Processing Functions
 int process_0x18FEF433(uint8_t* data, uint8_t len, bool debug){
     printf("Received 0X18FEF433:"); //Print Frame ID
@@ -190,7 +205,10 @@ int process_0x18FEF433(uint8_t* data, uint8_t len, bool debug){
 
 int main(){
     bool led_state = false;
-    stdio_init_all(); 
+    stdio_init_all();
+    sleep_ms(2000);  // 2 second delay
+    printf("\n\n\n");
+
     printf("SERIAL INIT\n");
 
     gpio_init(LED_PIN);
@@ -200,8 +218,12 @@ int main(){
     xl2515_init(KBPS500);
     printf("CANBUS INIT\n");
 
-    nextion_init();
-    printf("NEXTION INIT \n");
+    int next_status = nextion_init();
+    if(next_status == 0){
+        printf("NEXTION INIT SUCCESS \n");    
+    }else{
+        printf("NEXTION INIT FAIL \n");
+    }
 
     uint32_t received_id;
     uint8_t data_buffer[8];  // Assuming maximum CAN data length of 8 bytes
@@ -220,16 +242,19 @@ int main(){
                 // Process based on the received frame ID
                 switch (received_id) {
                     case 0x1000:
-                        process_0x00001000(data_buffer, recv_len, debug);
+                        process_0x1000(data_buffer, recv_len, debug);
+                        update_0x1000();
                         break;
                     case 0x1001:
-                        process_0x00001001(data_buffer, recv_len, debug);
+                        process_0x1001(data_buffer, recv_len, debug);
+                        update_0x1001();
                         break;
                     case 0x1002:
-                        process_0x00001002(data_buffer, recv_len, debug);
+                        process_0x1002(data_buffer, recv_len, debug);
                         break;
                     case 0x1003:
-                        process_0x00001003(data_buffer, recv_len, debug);
+                        process_0x1003(data_buffer, recv_len, debug);
+                        update_0x1003();
                         break;
                     default:
                         // For unknown frame IDs, print the raw data
@@ -241,20 +266,6 @@ int main(){
                         break;
                 }
             }
-
-            /*//Extract CAN Data from ECU
-            if(xl2515_recv(0x1000, data_buffer, &recv_len)){
-                process_0x00001000(data_buffer, recv_len, debug);
-            }
-            if(xl2515_recv(0x1001, data_buffer, &recv_len)){
-                process_0x00001001(data_buffer, recv_len, debug);
-            }
-            if(xl2515_recv(0x1002, data_buffer, &recv_len)){
-                process_0x00001002(data_buffer, recv_len, debug);
-            }
-            if(xl2515_recv(0x1003, data_buffer, &recv_len)){
-                process_0x00001003(data_buffer, recv_len, debug);
-            }*/
 
             /*
                 //Extract CAN Data from ECUMaster TPMS

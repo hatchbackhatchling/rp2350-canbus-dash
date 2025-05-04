@@ -20,13 +20,23 @@ int updateOilPressure(int oilP){
     set_value("oilp", oilP);
 }
 
-int updateAFR(float afr){
-    set_value("afr", afr);
+int updateTPS(int tps){
+    set_value("tps", tps);
     return 0;
 }
 
-int updateTPS(int tps){
-    set_value("tps", tps);
+int updateAFR(float afr){
+    set_value("afr", (int) (afr*100));
+    return 0;
+}
+
+int updateCLT(float clt){
+    set_value("clt", (int) clt);
+    return 0;
+}
+
+int updateIAT(float iat){
+    set_value("iat", (int) iat);
     return 0;
 }
 
