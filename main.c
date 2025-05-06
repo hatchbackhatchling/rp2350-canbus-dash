@@ -8,7 +8,8 @@
 
 #include "f1.h"
 #include "nextion.h"
-#include "xl2515.h" //CAN controller libraries
+//#include "xl2515.h" //CAN controller libraries
+#include "xl2515_claude.h"
 
 #define LED_PIN   25
 
@@ -225,63 +226,53 @@ int main(){
         printf("NEXTION INIT FAIL \n");
     }
 
-    uint32_t received_id;
-    uint8_t data_buffer[8];  // Assuming maximum CAN data length of 8 bytes
+    uint32_t frame_ids[] = {0x1000, 0x1001, 0x1002, 0x1003};
+    const int num_ids = sizeof(frame_ids) / sizeof(frame_ids[0]);
+    uint8_t data_buffer[8];
     uint8_t recv_len;
-    
+        
     msSinceBoot = to_ms_since_boot(get_absolute_time());
     
     while (true) {
         currentMS = to_ms_since_boot(get_absolute_time());
+        bool any_frame_received = false;
         
-        if(currentMS - msSinceBoot >= 50){
-
-            if (xl2515_recv_any(&received_id, data_buffer, &recv_len)) {
-                printf("Received frame ID: 0x%04lX\r\n", received_id);
+        // Check for each frame ID
+        for (int i = 0; i < num_ids; i++) {
+            if (xl2515_recv(frame_ids[i], data_buffer, &recv_len)) {
+                any_frame_received = true;
+                printf("Received frame ID: 0x%08lX\r\n", frame_ids[i]);
                 
                 // Process based on the received frame ID
-                switch (received_id) {
+                switch (frame_ids[i]) {
                     case 0x1000:
                         process_0x1000(data_buffer, recv_len, debug);
-                        update_0x1000();
                         break;
                     case 0x1001:
                         process_0x1001(data_buffer, recv_len, debug);
-                        update_0x1001();
                         break;
                     case 0x1002:
                         process_0x1002(data_buffer, recv_len, debug);
                         break;
                     case 0x1003:
                         process_0x1003(data_buffer, recv_len, debug);
-                        update_0x1003();
-                        break;
-                    default:
-                        // For unknown frame IDs, print the raw data
-                        printf("Unknown frame 0x%04lX: ", received_id);
-                        for (int i = 0; i < recv_len; i++) {
-                            printf("%02x ", data_buffer[i]);
-                        }
-                        printf("\r\n");
                         break;
                 }
+                // Break to restart checking from the first ID
+                break;
             }
+        }
+    
+        // Small delay if no frame was received
+        if (!any_frame_received) {
+            sleep_ms(1);
+        }
 
-            /*
-                //Extract CAN Data from ECUMaster TPMS
-                if(xl2515_recv(0x18FEF433,data_buffer,&recv_len)){
-                    process_0x18FEF433(data_buffer, recv_len, debug);
-                }
-            */
-
-            if(counter >= 19){
-                printf("KEEPALIVE\n");
-                led_state = !led_state;
-                gpio_put(LED_PIN, led_state);
-                counter = 0;
-            }
+        if(currentMS - msSinceBoot >= 1000){
+            printf("KEEPALIVE\n");
+            led_state = !led_state;
+            gpio_put(LED_PIN, led_state); 
             msSinceBoot = to_ms_since_boot(get_absolute_time());
-            counter ++;
         }
 
     }
